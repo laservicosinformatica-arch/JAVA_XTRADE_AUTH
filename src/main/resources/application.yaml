@@ -1,0 +1,27 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: xtrade-auth-server
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/xtrade_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  security:
+    issuer: http://localhost:9000
+
+  cors:
+    allowed-origins:
+      http://localhost:3000
