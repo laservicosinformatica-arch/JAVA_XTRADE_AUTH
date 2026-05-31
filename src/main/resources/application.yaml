@@ -19,6 +19,7 @@ spring:
         format_sql: true
 
 app:
+  internal-api-key: xtrade-int-2026-Ud8VwJ7sR4qPz2nK9mT6bY3aLx5cE1h
   security:
     issuer: http://localhost:9000
 

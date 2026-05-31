@@ -93,12 +93,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/internal/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults())
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/auth/login", "/admin/**"));
-
+                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        "/api/auth/login",
+                        "/admin/**",
+                        "/internal/**"
+                ));
         return http.build();
     }
 
