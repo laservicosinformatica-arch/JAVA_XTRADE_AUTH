@@ -12,7 +12,7 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
 
     boolean existsByUsernameIgnoreCase(String username);
 
-    boolean existsByCpf(String cpf);
+    boolean existsByDocumentNumber(String documentNumber);
 
     boolean existsByEmailIgnoreCase(String email);
 }

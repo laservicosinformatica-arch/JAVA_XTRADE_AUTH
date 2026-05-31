@@ -30,11 +30,8 @@ public class AppUser {
     @Column(name = "password_hash", nullable = false, length = 120)
     private String passwordHash;
 
-    /**
-     * CPF somente com números.
-     */
-    @Column(nullable = false, unique = true, length = 11)
-    private String cpf;
+    @Column(name = "document_number", nullable = false, unique = true, length = 60)
+    private String documentNumber;
 
     @Column(name = "full_name", length = 150)
     private String fullName;
@@ -71,14 +68,14 @@ public class AppUser {
     public AppUser(
             String username,
             String passwordHash,
-            String cpf,
+            String documentNumber,
             String fullName,
             String email,
             Set<AppRole> roles
     ) {
         this.username = username.trim().toLowerCase();
         this.passwordHash = passwordHash;
-        this.cpf = cpf;
+        this.documentNumber = documentNumber;
         this.fullName = fullName;
         this.email = email == null ? null : email.trim().toLowerCase();
 
@@ -86,7 +83,6 @@ public class AppUser {
             this.roles.addAll(roles);
         }
     }
-
     public void disable() {
         this.enabled = false;
         this.updatedAt = Instant.now();
