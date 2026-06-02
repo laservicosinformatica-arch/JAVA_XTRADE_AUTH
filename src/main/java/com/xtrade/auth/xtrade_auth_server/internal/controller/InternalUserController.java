@@ -14,7 +14,9 @@ import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
+import com.xtrade.auth.xtrade_auth_server.internal.dto.InternalUpdateUserRequest;
+import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,57 @@ public class InternalUserController {
     @Value("${app.internal-api-key}")
     private String internalApiKey;
 
+    @GetMapping
+    public ResponseEntity<List<InternalUserResponse>> findAll(
+            @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey
+    ) {
+        assertInternalKey(apiKey);
+
+        return ResponseEntity.ok(
+                appUserRepository.findAll()
+                        .stream()
+                        .map(InternalUserResponse::from)
+                        .toList()
+        );
+    }
+
+    @PutMapping("/{username}")
+    public ResponseEntity<InternalUserResponse> update(
+            @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey,
+            @PathVariable String username,
+            @RequestBody InternalUpdateUserRequest request
+    ) {
+        assertInternalKey(apiKey);
+
+        AppUser user = appUserRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+
+        if (request.email() != null && !request.email().equalsIgnoreCase(user.getEmail())
+                && appUserRepository.existsByEmailIgnoreCase(request.email())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists.");
+        }
+
+        if (request.documentNumber() != null && !request.documentNumber().equals(user.getDocumentNumber())
+                && appUserRepository.existsByDocumentNumber(request.documentNumber())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Document already exists.");
+        }
+
+        user.setEmail(request.email() == null ? null : request.email().trim().toLowerCase());
+        user.setFullName(request.fullName());
+        user.setDocumentNumber(request.documentNumber());
+        user.setEnabled(request.enabled());
+        user.setAccountNonLocked(request.accountNonLocked());
+        user.setUpdatedAt(Instant.now());
+
+        if (request.password() != null && !request.password().isBlank()) {
+            user.setPasswordHash(passwordEncoder.encode(request.password()));
+        }
+
+        user.getRoles().clear();
+        user.getRoles().addAll(resolveRoles(request.roles()));
+
+        return ResponseEntity.ok(InternalUserResponse.from(appUserRepository.save(user)));
+    }
     @PostMapping
     public ResponseEntity<InternalUserResponse> create(
             @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey,
@@ -66,6 +119,21 @@ public class InternalUserController {
                 .body(InternalUserResponse.from(appUserRepository.save(user)));
     }
 
+    @PatchMapping("/{username}/enable")
+    public ResponseEntity<InternalUserResponse> enable(
+            @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey,
+            @PathVariable String username
+    ) {
+        assertInternalKey(apiKey);
+
+        AppUser user = appUserRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found."));
+
+        user.enable();
+
+        return ResponseEntity.ok(InternalUserResponse.from(appUserRepository.save(user)));
+    }
+    
     @PatchMapping("/{username}/roles")
     public ResponseEntity<InternalUserResponse> updateRoles(
             @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey,
