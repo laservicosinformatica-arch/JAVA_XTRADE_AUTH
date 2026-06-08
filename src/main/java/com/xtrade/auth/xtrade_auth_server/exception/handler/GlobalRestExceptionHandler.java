@@ -16,6 +16,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.Instant;
@@ -132,6 +133,23 @@ public class GlobalRestExceptionHandler {
                 null
         );
 
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ApiErrorResponse> handleResponseStatusException(
+            ResponseStatusException ex,
+            HttpServletRequest request
+    ) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        ApiErrorResponse response = new ApiErrorResponse(
+                Instant.now(),
+                status.value(),
+                "request_rejected",
+                ex.getReason() == null ? "Request rejected" : ex.getReason(),
+                request.getRequestURI(),
+                null
+        );
         return ResponseEntity.status(status).body(response);
     }
 

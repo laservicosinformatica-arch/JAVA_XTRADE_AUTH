@@ -51,6 +51,15 @@ public class AppUser {
     @Column(name = "credentials_non_expired", nullable = false)
     private boolean credentialsNonExpired = true;
 
+    @Column(name = "failed_login_attempts", nullable = false)
+    private int failedLoginAttempts;
+
+    @Column(name = "locked_at")
+    private Instant lockedAt;
+
+    @Column(name = "password_changed_at")
+    private Instant passwordChangedAt = Instant.now();
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -95,11 +104,32 @@ public class AppUser {
 
     public void lock() {
         this.accountNonLocked = false;
+        this.lockedAt = Instant.now();
         this.updatedAt = Instant.now();
     }
 
     public void unlock() {
         this.accountNonLocked = true;
+        this.lockedAt = null;
+        this.failedLoginAttempts = 0;
+        this.updatedAt = Instant.now();
+    }
+
+    public void recordFailedLogin() {
+        this.failedLoginAttempts++;
+        this.updatedAt = Instant.now();
+    }
+
+    public void recordSuccessfulLogin() {
+        this.failedLoginAttempts = 0;
+        this.lockedAt = null;
+        this.updatedAt = Instant.now();
+    }
+
+    public void changePassword(String encodedPassword) {
+        this.passwordHash = encodedPassword;
+        this.passwordChangedAt = Instant.now();
+        this.credentialsNonExpired = true;
         this.updatedAt = Instant.now();
     }
 }
