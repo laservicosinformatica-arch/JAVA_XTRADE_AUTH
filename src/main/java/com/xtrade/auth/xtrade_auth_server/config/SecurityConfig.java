@@ -178,6 +178,11 @@ public class SecurityConfig {
 
             var principal = context.getPrincipal();
 
+            if ("xtrade-client-ois".equals(principal.getName())) {
+                context.getClaims().claim("roles", List.of("SYSTEM"));
+                return;
+            }
+
             List<String> roles = principal.getAuthorities()
                     .stream()
                     .map(GrantedAuthority::getAuthority)

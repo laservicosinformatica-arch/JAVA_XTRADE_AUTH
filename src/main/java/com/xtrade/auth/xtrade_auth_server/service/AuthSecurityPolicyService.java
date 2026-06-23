@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +76,23 @@ public class AuthSecurityPolicyService {
             user.recordSuccessfulLogin();
             appUserRepository.save(user);
         });
+    }
+
+    @Transactional
+    public String startSingleUserSession(String username) {
+        AppUser user = appUserRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials."));
+        String sessionId = UUID.randomUUID().toString();
+        user.startSession(sessionId);
+        appUserRepository.save(user);
+        return sessionId;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isActiveSession(String username, String sessionId) {
+        return appUserRepository.findByUsernameIgnoreCase(username)
+                .map(user -> user.isEnabled() && user.isAccountNonLocked() && user.isActiveSession(sessionId))
+                .orElse(false);
     }
 
     @Transactional(readOnly = true)

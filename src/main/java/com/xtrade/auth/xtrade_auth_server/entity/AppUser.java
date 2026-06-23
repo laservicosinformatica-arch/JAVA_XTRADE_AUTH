@@ -60,6 +60,12 @@ public class AppUser {
     @Column(name = "password_changed_at")
     private Instant passwordChangedAt = Instant.now();
 
+    @Column(name = "active_session_id", length = 80)
+    private String activeSessionId;
+
+    @Column(name = "active_session_issued_at")
+    private Instant activeSessionIssuedAt;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
@@ -124,6 +130,16 @@ public class AppUser {
         this.failedLoginAttempts = 0;
         this.lockedAt = null;
         this.updatedAt = Instant.now();
+    }
+
+    public void startSession(String sessionId) {
+        this.activeSessionId = sessionId;
+        this.activeSessionIssuedAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    public boolean isActiveSession(String sessionId) {
+        return sessionId != null && sessionId.equals(activeSessionId);
     }
 
     public void changePassword(String encodedPassword) {
