@@ -42,6 +42,7 @@ public class AuthRestController {
         var authentication = authenticate(request);
         securityPolicyService.assertPasswordNotExpired(authentication.getName());
         securityPolicyService.recordSuccessfulLogin(authentication.getName());
+        String sessionId = securityPolicyService.startSingleUserSession(authentication.getName());
 
         Instant now = Instant.now();
         int accessTokenTtlMinutes = securityPolicyService.getPolicy().getAccessTokenTtlMinutes();
@@ -59,6 +60,8 @@ public class AuthRestController {
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(accessTokenTtlMinutes * 60L))
                 .subject(authentication.getName())
+                .id(sessionId)
+                .claim("sid", sessionId)
                 .claim("roles", roles)
                 .claim("scope", "api.read api.write")
                 .build();
