@@ -3,6 +3,7 @@ package com.xtrade.auth.xtrade_auth_server.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.type.NumericBooleanConverter;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -39,16 +40,20 @@ public class AppUser {
     @Column(unique = true, length = 180)
     private String email;
 
-    @Column(nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(nullable = false, columnDefinition = "NUMBER(1)")
     private boolean enabled = true;
 
-    @Column(name = "account_non_expired", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "account_non_expired", nullable = false, columnDefinition = "NUMBER(1)")
     private boolean accountNonExpired = true;
 
-    @Column(name = "account_non_locked", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "account_non_locked", nullable = false, columnDefinition = "NUMBER(1)")
     private boolean accountNonLocked = true;
 
-    @Column(name = "credentials_non_expired", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "credentials_non_expired", nullable = false, columnDefinition = "NUMBER(1)")
     private boolean credentialsNonExpired = true;
 
     @Column(name = "failed_login_attempts", nullable = false)

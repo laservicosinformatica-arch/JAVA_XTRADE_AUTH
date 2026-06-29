@@ -6,8 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Convert;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.type.NumericBooleanConverter;
 
 import java.time.Instant;
 
@@ -36,16 +38,20 @@ public class AuthSecurityPolicy {
     @Column(name = "minimum_password_length", nullable = false)
     private int minimumPasswordLength = 10;
 
-    @Column(name = "require_uppercase", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "require_uppercase", nullable = false, columnDefinition = "NUMBER(1)")
     private boolean requireUppercase = true;
 
-    @Column(name = "require_lowercase", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "require_lowercase", nullable = false, columnDefinition = "NUMBER(1)")
     private boolean requireLowercase = true;
 
-    @Column(name = "require_number", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "require_number", nullable = false, columnDefinition = "NUMBER(1)")
     private boolean requireNumber = true;
 
-    @Column(name = "require_special_character", nullable = false)
+    @Convert(converter = NumericBooleanConverter.class)
+    @Column(name = "require_special_character", nullable = false, columnDefinition = "NUMBER(1)")
     private boolean requireSpecialCharacter = true;
 
     @Column(name = "updated_at", nullable = false)

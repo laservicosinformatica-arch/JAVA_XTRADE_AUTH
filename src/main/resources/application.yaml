@@ -6,9 +6,9 @@ spring:
     name: xtrade-auth-server
 
   datasource:
-    url: jdbc:mysql://localhost:3306/xtrade_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: root
-    password: root
+    url: ${DB_URL:jdbc:oracle:thin:@localhost:1521/FREEPDB1}
+    username: ${DB_USERNAME:AUTH}
+    password: ${DB_PASSWORD:xtrade}
 
   jpa:
     hibernate:
