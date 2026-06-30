@@ -42,6 +42,15 @@ public class InternalUserController {
         return ResponseEntity.ok(internalUserService.findAll());
     }
 
+    @PostMapping
+    public ResponseEntity<InternalUserResponse> create(
+            @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey,
+            @RequestBody InternalCreateUserRequest request
+    ) {
+        assertInternalKey(apiKey);
+        return ResponseEntity.status(HttpStatus.CREATED).body(internalUserService.create(request));
+    }
+
     @PutMapping("/{username}")
     public ResponseEntity<InternalUserResponse> update(
             @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey,
@@ -52,13 +61,14 @@ public class InternalUserController {
         return ResponseEntity.ok(internalUserService.update(username, request));
     }
 
-    @PostMapping
-    public ResponseEntity<InternalUserResponse> create(
+    @PatchMapping("/{username}/roles")
+    public ResponseEntity<InternalUserResponse> updateRoles(
             @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey,
-            @RequestBody InternalCreateUserRequest request
+            @PathVariable String username,
+            @RequestBody InternalUpdateUserRolesRequest request
     ) {
         assertInternalKey(apiKey);
-        return ResponseEntity.status(HttpStatus.CREATED).body(internalUserService.create(request));
+        return ResponseEntity.ok(internalUserService.updateRoles(username, request));
     }
 
     @PatchMapping("/{username}/enable")
@@ -68,16 +78,6 @@ public class InternalUserController {
     ) {
         assertInternalKey(apiKey);
         return ResponseEntity.ok(internalUserService.enable(username));
-    }
-
-    @PatchMapping("/{username}/roles")
-    public ResponseEntity<InternalUserResponse> updateRoles(
-            @RequestHeader(INTERNAL_API_KEY_HEADER) String apiKey,
-            @PathVariable String username,
-            @RequestBody InternalUpdateUserRolesRequest request
-    ) {
-        assertInternalKey(apiKey);
-        return ResponseEntity.ok(internalUserService.updateRoles(username, request));
     }
 
     @PatchMapping("/{username}/disable")
